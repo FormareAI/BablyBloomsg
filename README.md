@@ -7,45 +7,101 @@ AI 助手用于新加坡家庭政策问答、推荐与计算，基于 Streamlit�
 - 其他版本不保证兼容性（请务必使用 3.10）
 
 ### 快速开始
-1) 克隆或下载本项目代码
 
-2) 创建并激活虚拟环境（可选但推荐）
+#### 方式一：使用 Conda（推荐）
+
+1) **克隆或下载本项目代码**
 ```bash
-# Windows (PowerShell) — 请确保系统默认 python 指向 3.10，或用 python3.10
-python -m venv venv  # 或 python3.10 -m venv venv
-venv\Scripts\Activate.ps1
-
-# macOS / Linux — 建议明确使用 python3.10
-python3.10 -m venv venv  # 若无命令，可用 pyenv/包管理安装 3.10
-source venv/bin/activate
+git clone <项目地址>
+cd BablyBloomsg
 ```
 
-3) 安装依赖（确保当前环境 Python 为 3.10）
+2) **创建 Conda 环境（Python 3.10）**
 ```bash
+conda create -n python310 python=3.10
+```
+
+3) **激活环境**
+```bash
+conda activate python310
+```
+
+4) **安装依赖**
+```bash
+# 升级 pip
 pip install --upgrade pip
-pip install -r requirement.txt
-```
 
-**注意**: 如果遇到 RAG 系统初始化失败，请确保已安装以下依赖：
-```bash
+# 安装所有依赖
+pip install -r requirement.txt
+
+# 如果 RAG 系统初始化失败，确保安装以下依赖：
 pip install sentence-transformers faiss-cpu scikit-learn
 ```
 
-4) 运行应用
+5) **运行应用**
 ```bash
-conda activate python310
 streamlit run app.py
 ```
 
-访问: http://localhost:8501
+6) **访问应用**
+- 在浏览器中打开：http://localhost:8501
+- 应用会自动在浏览器中打开
 
-### API Key 配置
-在页面左侧边栏按所选模型输入对应的 Key：
-- 通义千问: 在 `阿里云 DashScope` 获取 Key
-- Gemini: 在 `Google AI Studio` 获取 Key
-- Llama-3: 在 `HuggingFace` 获取 Token
+7) **配置 API Key 并使用**
+   - 在页面左侧边栏选择模型（通义千问 / Gemini / Llama-3）
+   - 在对应的输入框中输入 API Key：
+     - **通义千问**: 访问 [阿里云 DashScope](https://dashscope.console.aliyun.com/) 获取 API Key
+     - **Gemini**: 访问 [Google AI Studio](https://aistudio.google.dev/) 获取 API Key
+     - **Llama-3**: 访问 [HuggingFace](https://huggingface.co/settings/tokens) 获取 Token
+   - 在聊天界面输入问题（如："我想了解生育津贴政策"）
+   - 等待 AI 回答（首次使用可能需要几秒加载模型）
+   - 查看回答并根据需要继续提问
 
-无需通过 PowerShell 或 Shell 脚本启动，直接在项目中执行上述命令即可。
+8) **填写用户信息（可选）**
+   - 在左侧边栏可以填写您的身份信息：
+     - 公民身份（新加坡公民 / PR / 外国人）
+     - 婚姻状况
+     - 月收入
+     - 子女数量
+     - 年龄
+   - 填写后可以获得更个性化的政策推荐和计算
+
+#### 方式二：使用 venv（备选）
+
+如果未安装 Conda，可以使用 Python 自带的 venv：
+
+1) **创建虚拟环境**
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\Activate.ps1
+
+# macOS / Linux
+python3.10 -m venv venv
+source venv/bin/activate
+```
+
+2) **安装依赖并运行**
+```bash
+pip install --upgrade pip
+pip install -r requirement.txt
+pip install sentence-transformers faiss-cpu scikit-learn
+streamlit run app.py
+```
+
+### 完整使用流程示例
+
+```
+1. 创建环境 → conda create -n python310 python=3.10
+2. 激活环境 → conda activate python310
+3. 安装依赖 → pip install -r requirement.txt
+4. 运行程序 → streamlit run app.py
+5. 打开浏览器 → http://localhost:8501
+6. 输入 API Key → 在左侧边栏选择模型并输入 Key
+7. 开始提问 → 在聊天框输入问题，如："生育津贴有多少钱？"
+8. 查看回答 → 等待 AI 生成回答并查看结果
+9. 继续对话 → 可以继续提问或切换到其他功能（政策推荐、津贴计算等）
+```
 
 ### 依赖说明
 
@@ -77,9 +133,10 @@ pip install sentence-transformers faiss-cpu scikit-learn
 
 **Q: 无法启动或导入失败**
 - A: 请确认：
-  1. Python 版本为 3.10
-  2. 已激活正确的虚拟环境（conda 或 venv）
+  1. 已创建并激活 Conda 环境：`conda activate python310`
+  2. Python 版本为 3.10（运行 `python --version` 检查）
   3. 已运行 `pip install -r requirement.txt`
+  4. 已安装 RAG 依赖：`pip install sentence-transformers faiss-cpu scikit-learn`
 
 **Q: 端口被占用**
 - A: 修改启动命令：
