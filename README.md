@@ -49,6 +49,7 @@ streamlit run app.py
 
 7) **配置 API Key 并使用**
    - 在页面左侧边栏选择模型（通义千问 / Gemini / Llama-3）
+   - 优先级（前端输入 > .env）：前端输入的 Key 会覆盖 .env 中的默认值
    - 在对应的输入框中输入 API Key：
      - **通义千问**: 访问 [阿里云 DashScope](https://dashscope.console.aliyun.com/) 获取 API Key
      - **Gemini**: 访问 [Google AI Studio](https://aistudio.google.dev/) 获取 API Key
@@ -121,6 +122,24 @@ pip install sentence-transformers faiss-cpu scikit-learn
 ```
 
 如未安装 RAG 依赖，应用会显示警告，智能问答功能将不可用。
+
+### 使用 .env 管理密钥（不在前端展示）
+
+1) 复制示例文件为 `.env` 并填写：
+```bash
+cp env.example .env
+```
+
+2) `.env` 中支持的变量：
+```ini
+QWEN_API_KEY=  # 通义千问
+GEMINI_API_KEY=  # Google Gemini
+HF_TOKEN=  # HuggingFace
+```
+
+3) 加载策略：
+- 应用启动时自动加载 `.env`（通过 python-dotenv）
+- 用户在前端输入的 Key 将优先使用，不会在界面回显 `.env` 中的值
 
 ### 常见问题
 

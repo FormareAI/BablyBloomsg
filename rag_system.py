@@ -7,7 +7,7 @@ from typing import List, Dict, Any
 
 try:
     from sentence_transformers import SentenceTransformer
-    import faiss
+    import faiss  # faiss-cpu 包提供的模块名为 `faiss`
     DEPENDENCIES_AVAILABLE = True
 except ImportError:
     DEPENDENCIES_AVAILABLE = False

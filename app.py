@@ -4,6 +4,10 @@ import requests
 from datetime import datetime, timedelta
 import json
 import time
+from dotenv import load_dotenv
+
+# 新增：加载 .env 环境变量
+load_dotenv()
 
 # 新增：导入模块
 try:
@@ -31,19 +35,21 @@ except ImportError:
     REC_AVAILABLE = False
 
 # 新增：导入时间线生成器和翻译管理器
+# 注意：禁止在 set_page_config 之前调用任何 st.* API，这里先收集警告
+PRE_PAGE_WARNINGS = []
 try:
     from timeline_generator import TimelineGenerator
     TIMELINE_AVAILABLE = True
 except ImportError:
     TIMELINE_AVAILABLE = False
-    st.warning("⚠️ 时间线生成器未加载")
+    PRE_PAGE_WARNINGS.append("⚠️ 时间线生成器未加载")
 
 try:
     from translation_manager import TranslationManager
     TRANSLATION_AVAILABLE = True
 except ImportError:
     TRANSLATION_AVAILABLE = False
-    st.warning("⚠️ 翻译管理器未加载")
+    PRE_PAGE_WARNINGS.append("⚠️ 翻译管理器未加载")
 
 # 页面配置
 st.set_page_config(
@@ -51,6 +57,12 @@ st.set_page_config(
     page_icon="🇸🇬",
     layout="wide"
 )
+
+# 在页面配置完成后再展示之前收集的警告
+for _msg in PRE_PAGE_WARNINGS:
+    st.warning(_msg)
+
+
 
 # 初始化翻译管理器
 if 'translator' not in st.session_state:
@@ -214,11 +226,13 @@ def initialize_systems():
         try:
             systems['rag'] = RAGSystem(POLICY_KB)
             systems['rag'].build_index()
-        except ImportError as e:
-            st.error(f"❌ RAG系统初始化失败: {e}")
-            st.info("💡 解决方案: 请运行 `pip install sentence-transformers faiss-cpu scikit-learn`")
+        except ImportError:
+            # 依赖库缺失，静默处理
+            pass
         except Exception as e:
-            st.warning(f"⚠️ RAG系统初始化失败: {e}")
+            # 其他错误（如模型下载失败、内存不足等），静默处理
+            # 可通过调试查看具体错误: print(f"RAG初始化错误: {e}")
+            pass
     
     if REC_AVAILABLE:
         try:
@@ -279,12 +293,23 @@ with st.sidebar.expander("📊 模型信息", expanded=False):
     st.write(f"**速度**: {info['speed']}")
     st.write(f"**成本**: {info['cost']}")
 
+# 从环境变量读取默认密钥（不展示到前端）
+ENV_KEYS = {
+    "通义千问": os.getenv("QWEN_API_KEY", ""),
+    "Gemini": os.getenv("GEMINI_API_KEY", ""),
+    "Llama-3": os.getenv("HF_TOKEN", ""),
+}
+
+# 前端输入为空时，将回退使用 ENV_KEYS，但不在输入框中回显
 if selected_model == "通义千问":
-    api_key = st.sidebar.text_input("通义千问API Key", type="password")
+    api_key_input = st.sidebar.text_input("通义千问API Key", type="password")
 elif selected_model == "Gemini":
-    api_key = st.sidebar.text_input("Gemini API Key", type="password")
+    api_key_input = st.sidebar.text_input("Gemini API Key", type="password")
 else:
-    api_key = st.sidebar.text_input("HuggingFace Token", type="password")
+    api_key_input = st.sidebar.text_input("HuggingFace Token", type="password")
+
+# 计算最终使用的 Key：前端优先，其次 .env
+effective_api_key = api_key_input or ENV_KEYS.get(selected_model, "")
 
 # 用户信息
 st.sidebar.header(t('sidebar_user_info'))
@@ -650,8 +675,8 @@ if st.session_state.current_page == "智能问答":
                 else:
                     basic_response = generate_response(prompt, intent, user_info)
                 
-                if api_key:
-                    ai_response = call_llm_api(prompt, basic_response, selected_model, api_key)
+                if effective_api_key:
+                    ai_response = call_llm_api(prompt, basic_response, selected_model, effective_api_key)
                     final_response = ai_response
                 else:
                     final_response = basic_response + f"\n\n💡 {t('chat_api_hint')}"
