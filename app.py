@@ -214,8 +214,11 @@ def initialize_systems():
         try:
             systems['rag'] = RAGSystem(POLICY_KB)
             systems['rag'].build_index()
+        except ImportError as e:
+            st.error(f"❌ RAG系统初始化失败: {e}")
+            st.info("💡 解决方案: 请运行 `pip install sentence-transformers faiss-cpu scikit-learn`")
         except Exception as e:
-            st.warning(f"RAG系统初始化失败: {e}")
+            st.warning(f"⚠️ RAG系统初始化失败: {e}")
     
     if REC_AVAILABLE:
         try:
